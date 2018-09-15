@@ -30,6 +30,8 @@ use AppserverIo\RestApi\Parsers\RequestParserInterface;
 use AppserverIo\RestApi\Parsers\ConfigurationParserInterface;
 use AppserverIo\RestApi\Handlers\RequestHandlerInterface;
 use AppserverIo\RestApi\Wrappers\OperationWrapperInterface;
+use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
+use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
 
 /**
  * OpenApi 2.0 compatible request handler.
@@ -138,7 +140,10 @@ class RequestHandler implements RequestHandlerInterface
      */
     protected function encode($data, $format = FormatKeys::FORMAT_JSON)
     {
-        return SerializerBuilder::create()->build()->serialize($data, $format);
+        return SerializerBuilder::create()
+            ->setPropertyNamingStrategy(new SerializedNameAnnotationStrategy(new IdenticalPropertyNamingStrategy()))
+            ->build()
+            ->serialize($data, $format);
     }
 
     /**
