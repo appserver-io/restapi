@@ -1,3 +1,13 @@
+# Version 1.0.2
+
+## Bugfixes
+
+* Set IdenticalPropertyNamingStrategy for JMS Serializer
+
+## Features
+
+* None
+
 # Version 1.0.1
 
 ## Bugfixes
