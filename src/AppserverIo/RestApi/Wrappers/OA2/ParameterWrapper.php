@@ -125,4 +125,14 @@ class ParameterWrapper implements ParameterWrapperInterface
     {
         return strcasecmp($this->getCollectionFormat(), $collectionFormat) === 0 ? true : false;
     }
+
+    /**
+     * Returns the parameter's schema instance.
+     *
+     * @return \AppserverIo\RestApi\Wrappers\SchemaWrapperInterface The schema instance
+     */
+    public function getSchema()
+    {
+        return new SchemaWrapper($this->getParameter()->schema);
+    }
 }

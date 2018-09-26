@@ -24,6 +24,9 @@ use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 use AppserverIo\RestApi\Parsers\RequestParserInterface;
 use AppserverIo\RestApi\Wrappers\OperationWrapperInterface;
 use AppserverIo\RestApi\Wrappers\ParameterWrapperInterface;
+use JMS\Serializer\SerializerBuilder;
+use AppserverIo\Psr\Di\ObjectManagerInterface;
+use AppserverIo\Psr\Application\ApplicationInterface;
 
 /**
  * OpenApi 2.0 compatible request parser.
@@ -36,6 +39,46 @@ use AppserverIo\RestApi\Wrappers\ParameterWrapperInterface;
  */
 class RequestParser implements RequestParserInterface
 {
+
+    /**
+     * The application instance.
+     *
+     * @var \AppserverIo\Psr\Application\ApplicationInterface
+     */
+    protected $application;
+
+    /**
+     * Initializes the request handler with the passed application instance.
+     *
+     * @param \AppserverIo\Psr\Application\ApplicationInterface $application The application instance
+     */
+    public function __construct(ApplicationInterface $application)
+    {
+        $this->application = $application;
+    }
+
+    /**
+     * Returns the application instance.
+     *
+     * @return \AppserverIo\Psr\Application\ApplicationInterface The application instance
+     */
+    protected function getApplication()
+    {
+        return $this->application;
+    }
+
+    protected function processBodyParameter(HttpServletRequestInterface $servletRequest, ParameterWrapperInterface $parameter)
+    {
+
+        /** @var \AppserverIo\Psr\Di\ObjectManagerInterface $objectManager */
+        $objectManager = $this->getApplication()->search(ObjectManagerInterface::IDENTIFIER);
+
+        list ($lookupName, ) = sscanf($parameter->getSchema()->getRef(), '#/definitions/%s');
+
+        $objectDescriptor = $objectManager->getObjectDescriptor($lookupName);
+
+        return SerializerBuilder::create()->build()->deserialize($servletRequest->getBodyContent(), $objectDescriptor->getClassName(), 'json');
+    }
 
     /**
      * Returns the integer value for the passed parameter from the request.
@@ -148,6 +191,13 @@ class RequestParser implements RequestParserInterface
             } elseif ($parameter->isIn('query')) {
                 // try to load the value from the request parameters
                 $parameters[] = call_user_func(array($this, $this->prepareMethodName($parameter)), $servletRequest, $parameter);
+            } elseif ($parameter->isIn('header')) {
+                // TODO Still to implement
+            } elseif ($parameter->isIn('body')) {
+                // try to load the value from the request parameters
+                $parameters[] = $this->processBodyParameter($servletRequest, $parameter);
+            } elseif ($parameter->isIn('formData')) {
+                // TODO Still to implement
             } else {
                 throw new \Exception(sprintf('Query parameter context "%s" is not supported yed', $parameter->getIn()));
             }

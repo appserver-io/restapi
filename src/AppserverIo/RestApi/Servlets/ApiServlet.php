@@ -122,4 +122,46 @@ class ApiServlet extends HttpServlet
     {
         $this->getRequestHandler()->handle($servletRequest, $servletResponse);
     }
+
+    /**
+     * Implements Http POST method.
+     *
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
+     *
+     * @return void
+     * @throws \AppserverIo\Psr\Servlet\ServletException Is thrown if the request method is not implemented
+     */
+    public function doPost(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
+    {
+        $this->getRequestHandler()->handle($servletRequest, $servletResponse);
+    }
+
+    /**
+     * Implements Http PATCH method.
+     *
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
+     *
+     * @return void
+     * @throws \AppserverIo\Psr\Servlet\ServletException Is thrown if the request method is not implemented
+     */
+    public function doPatch(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
+    {
+        $this->getRequestHandler()->handle($servletRequest, $servletResponse);
+    }
+
+    /**
+     * Implements Http DELETE method.
+     *
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
+     *
+     * @return void
+     * @throws \AppserverIo\Psr\Servlet\ServletException Is thrown if the request method is not implemented
+     */
+    public function doDelete(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
+    {
+        $this->getRequestHandler()->handle($servletRequest, $servletResponse);
+    }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AppserverIo\RestApi\Wrappers\ParameterWrapperInterface
+ * AppserverIo\RestApi\Wrappers\SchemaWrapperInterface
  *
  * NOTICE OF LICENSE
  *
@@ -21,7 +21,7 @@
 namespace AppserverIo\RestApi\Wrappers;
 
 /**
- * The interface for all parameter wrapper implementations.
+ * The interface for all schema wrapper implementations.
  *
  * @author    Tim Wagner <tw@appserver.io>
  * @copyright 2018 TechDivision GmbH <info@appserver.io>
@@ -29,59 +29,30 @@ namespace AppserverIo\RestApi\Wrappers;
  * @link      https://github.com/appserver-io/restapi
  * @link      http://www.appserver.io
  */
-interface ParameterWrapperInterface
+interface SchemaWrapperInterface
 {
 
     /**
-     * Query whether or not the parameter is in the passed scope.
+     * Returns the schema definition.
      *
-     * @param string $in The scope to query
-     *
-     * @return boolean TRUE if the scope matches, else FALSE
+     * @return string The schema definition
+     * @see http://json-schema.org/latest/json-schema-core.html#rfc.section.7.
      */
-    public function isIn($in);
+    public function getRef();
 
     /**
-     * Returns the location of the parameter.
-     *
-     * @return string The location of the parameter
-     */
-    public function getIn();
-
-    /**
-     * Returns the type of the parameter.
-     *
-     * @return string The parameter type
-     */
-    public function getType();
-
-    /**
-     * Returns the parameter's name.
-     *
-     * @return string The name
-     */
-    public function getName();
-
-    /**
-     * Returns the parameter's collection format.
+     * Returns the schema's collection format.
      *
      * @return string The collection format
      */
     public function getCollectionFormat();
 
     /**
-     * Query whether or not the parameter has the passed collection format.
+     * Query whether or not the schema has the passed collection format.
      *
      * @param string $collectionFormat The collection format to query
      *
      * @return boolean TRUE if collection format matches, else FALSE
      */
     public function hasCollectionFormat($collectionFormat);
-
-    /**
-     * Returns the parameter's schema instance.
-     *
-     * @return \AppserverIo\RestApi\Wrappers\SchemaWrapperInterface The schema instance
-     */
-    public function getSchema();
 }
