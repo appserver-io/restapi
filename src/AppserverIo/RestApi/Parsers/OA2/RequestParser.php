@@ -67,16 +67,28 @@ class RequestParser implements RequestParserInterface
         return $this->application;
     }
 
+    /**
+     * Parses the body content, unserializes it and returns it as object instance.
+     *
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface $servletRequest The HTTP servlet request instance
+     * @param \AppserverIo\RestApi\Wrappers\ParameterWrapperInterface   $parameter      The parameter instance
+     *
+     * @return object The parameter converted into an object
+     */
     protected function processBodyParameter(HttpServletRequestInterface $servletRequest, ParameterWrapperInterface $parameter)
     {
 
+        // load the object manager instance
         /** @var \AppserverIo\Psr\Di\ObjectManagerInterface $objectManager */
         $objectManager = $this->getApplication()->search(ObjectManagerInterface::IDENTIFIER);
 
+        // extract the lookup name from the ref definition
         list ($lookupName, ) = sscanf($parameter->getSchema()->getRef(), '#/definitions/%s');
 
+        // load the object descriptor
         $objectDescriptor = $objectManager->getObjectDescriptor($lookupName);
 
+        // unserialize the body content into an object and return it
         return SerializerBuilder::create()->build()->deserialize($servletRequest->getBodyContent(), $objectDescriptor->getClassName(), 'json');
     }
 
