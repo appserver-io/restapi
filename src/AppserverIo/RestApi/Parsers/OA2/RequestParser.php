@@ -73,9 +73,7 @@ class RequestParser implements RequestParserInterface
      * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface $servletRequest The HTTP servlet request instance
      * @param \AppserverIo\RestApi\Wrappers\ParameterWrapperInterface   $parameter      The parameter instance
      *
-     * @param HttpServletRequestInterface $servletRequest
-     * @param ParameterWrapperInterface $parameter
-     * @return mixed
+     * @return object The parameter converted into an object
      */
     protected function processBodyParameter(HttpServletRequestInterface $servletRequest, ParameterWrapperInterface $parameter)
     {
