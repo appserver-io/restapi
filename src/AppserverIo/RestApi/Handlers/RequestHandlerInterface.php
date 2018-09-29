@@ -37,6 +37,13 @@ interface RequestHandlerInterface
 {
 
     /**
+     * Returns the API name, the request handler provides.
+     *
+     * @return string The API name
+     */
+    public function getApi();
+
+    /**
      * Initializes the request handler.
      *
      * @return void

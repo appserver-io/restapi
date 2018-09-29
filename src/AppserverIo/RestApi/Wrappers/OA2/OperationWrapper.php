@@ -74,6 +74,13 @@ class OperationWrapper implements OperationWrapperInterface
     protected $parameters = array();
 
     /**
+     * The operation's wrapped responses.
+     *
+     * @var array
+     */
+    protected $responses = array();
+
+    /**
      * The array with the names of the parsed path variables as key and their position as value.
      *
      * @var array
@@ -103,8 +110,17 @@ class OperationWrapper implements OperationWrapperInterface
         $this->methodName = $reflectionMethod->getName();
 
         // wrap the operation's parameters
-        foreach ($operation->parameters as $parameter) {
-            $this->parameters[] = new ParameterWrapper($parameter);
+        if (is_array($operation->parameters)) {
+            foreach ($operation->parameters as $parameter) {
+                $this->parameters[] = new ParameterWrapper($parameter);
+            }
+        }
+
+        // wrap the operation's responses
+        if (is_array($operation->responses)) {
+            foreach ($operation->responses as $response) {
+                $this->responses[$response->response] = new ResponseWrapper($response);
+            }
         }
 
         // initialize the array for the path variables
@@ -166,7 +182,7 @@ class OperationWrapper implements OperationWrapperInterface
     }
 
     /**
-     * Returns the operations parameters.
+     * Returns the operation's parameters.
      *
      * @return \AppserverIo\RestApi\Wrappers\ParameterWrapperInterface[] The array with the parameters
      */
@@ -235,5 +251,35 @@ class OperationWrapper implements OperationWrapperInterface
     public function getMethod()
     {
         return $this->getOperation()->method;
+    }
+
+    /**
+     * Return's the response for the passed status code.
+     *
+     * @param mixed $statusCode The status code to return the response for
+     *
+     * @return \AppserverIo\RestApi\Wrappers\ResponseWrapperInterface The repsonse wrapper instance
+     * @throws \Exception Is thrown, if the response for the passed status code is not available
+     */
+    public function getResponse($statusCode)
+    {
+
+        // query whether or not a response for the passed status code is available
+        if (isset($this->responses[$statusCode])) {
+            return $this->responses[$statusCode];
+        }
+
+        // throw an exception, if not
+        throw new \Exception(sprintf('Can\'t find response for status code "%s"', $statusCode));
+    }
+
+    /**
+     * Returns the operation's responses.
+     *
+     * @return \AppserverIo\RestApi\Wrappers\ResponseWrapperInterface[] The array with the responses
+     */
+    public function getResponses()
+    {
+        return $this->responses;
     }
 }

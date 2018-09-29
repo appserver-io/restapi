@@ -24,8 +24,8 @@ use AppserverIo\Psr\Servlet\Http\HttpServlet;
 use AppserverIo\Psr\Servlet\ServletConfigInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
-use AppserverIo\RestApi\Handlers\RequestHandlerInterface;
 use AppserverIo\RestApi\Utils\InitParameterKeys;
+use AppserverIo\RestApi\Handlers\RequestHandlerInterface;
 
 /**
  * Controller servlet handling any API requests.

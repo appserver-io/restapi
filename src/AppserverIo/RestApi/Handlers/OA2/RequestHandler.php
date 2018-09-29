@@ -32,6 +32,8 @@ use AppserverIo\RestApi\Handlers\RequestHandlerInterface;
 use AppserverIo\RestApi\Wrappers\OperationWrapperInterface;
 use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
 use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
+use AppserverIo\RestApi\Responses\ResponseFactoryInterface;
+use AppserverIo\RestApi\SerializerInterface;
 
 /**
  * OpenApi 2.0 compatible request handler.
@@ -46,14 +48,11 @@ class RequestHandler implements RequestHandlerInterface
 {
 
     /**
-     * The encoding to mime type mapping.
+     * The request handlers unique API name.
      *
-     * @var array
+     * @var string
      */
-    protected $formatToMimeType = array(
-        FormatKeys::FORMAT_XML  => 'application/xml',
-        FormatKeys::FORMAT_JSON => 'application/json'
-    );
+    const API = 'OA2';
 
     /**
      * The array with the available operations.
@@ -84,20 +83,40 @@ class RequestHandler implements RequestHandlerInterface
     protected $configurationParser;
 
     /**
+     * The response factory instance.
+     *
+     * @var \AppserverIo\RestApi\Responses\ResponseFactoryInterface
+     */
+    protected $responseFactory;
+
+    /**
+     * The serializer instance.
+     *
+     * @var \AppserverIo\RestApi\SerializerInterface
+     */
+    protected $serializer;
+
+    /**
      * Initializes the request handler with the passed instances.
      *
      * @param \AppserverIo\Psr\Application\ApplicationInterface         $application         The application instance
      * @param \AppserverIo\RestApi\Parsers\RequestParserInterface       $requestParser       The request parser instance
-     * @param \AppserverIo\RestApi\Parsers\ConfigurationParserInterface $configurationParser The configuration parser instanc
+     * @param \AppserverIo\RestApi\Parsers\ConfigurationParserInterface $configurationParser The configuration parser instance
+     * @param \AppserverIo\RestApi\Responses\ResponseFactoryInterface   $responseFactory     The response factory instance
+     * @param \AppserverIo\RestApi\SerializerInterface                  $serializer          The serializer instance
      */
     public function __construct(
         ApplicationInterface $application,
         RequestParserInterface $requestParser,
-        ConfigurationParserInterface $configurationParser
+        ConfigurationParserInterface $configurationParser,
+        ResponseFactoryInterface $responseFactory,
+        SerializerInterface $serializer
     ) {
         $this->application = $application;
         $this->requestParser = $requestParser;
         $this->configurationParser = $configurationParser;
+        $this->responseFactory = $responseFactory;
+        $this->serializer = $serializer;
     }
 
     /**
@@ -131,31 +150,67 @@ class RequestHandler implements RequestHandlerInterface
     }
 
     /**
-     * Encodes the passed data, to JSON format for example, and returns it.
+     * Returns the response factory instance.
      *
-     * @param object|array $data   The data to be encoded
-     * @param string       $format The encoding format (JSON by default)
-     *
-     * @return string The encoded data
+     * @return \AppserverIo\RestApi\Responses\ResponseFactoryInterface The factory instance
      */
-    protected function encode($data, $format = FormatKeys::FORMAT_JSON)
+    protected function getResponseFactory()
     {
-        return SerializerBuilder::create()
-            ->setPropertyNamingStrategy(new SerializedNameAnnotationStrategy(new IdenticalPropertyNamingStrategy()))
-            ->build()
-            ->serialize($data, $format);
+        return $this->responseFactory;
     }
 
     /**
-     * Returns the mime type for the given format, which can either be `xml` or `json`.
+     * Returns the serializer instance.
      *
-     * @param string $format The format to return the mime type for
-     *
-     * @return string The mime type
+     * @return \AppserverIo\RestApi\SerializerInterface The serializer instance
      */
-    protected function produces($format = FormatKeys::FORMAT_JSON)
+    protected function getSerializer()
     {
-        return isset($this->formatToMimeType[$format]) ? $this->formatToMimeType[$format] : FormatKeys::FORMAT_JSON;
+        return $this->serializer;
+    }
+
+    /**
+     * Encodes the passed data, depending on the Accept header of the passed request, and returns it.
+     *
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface $servletRequest The HTTP servlet request instance
+     * @param mixed                                                     $data           The data to serialize
+     *
+     * @return string The serialized data
+     */
+    protected function serialize(HttpServletRequestInterface $servletRequest, $data)
+    {
+        return $this->getSerializer()->serialize($data, $this->getSerializer()->mapHeader($servletRequest));
+    }
+
+    /**
+     * Returns the content type for the passed servlet request/operation wrapper combination.
+     *
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface  $servletRequest   The HTTP servlet request instance
+     * @param \AppserverIo\RestApi\Wrappers\OperationWrapperInterface    $operationWrapper The operation wrapper instance
+     *
+     * @return string The content type
+     * @throws \Exception Is thrown, if the Content-Type defined by the request's Accept header is NOT supported
+     */
+    protected function produces(HttpServletRequestInterface $servletRequest, OperationWrapperInterface $operationWrapper)
+    {
+
+        // query whether or not the requested Content-Type, defined by the request's Accept header is supported
+        if (in_array($contentType = $servletRequest->getHeader(Protocol::HEADER_ACCEPT), $operationWrapper->produces())) {
+            return $contentType;
+        }
+
+        // throw an exception, if not
+        throw new \Exception(sprintf('Requested Content-Type "%s", defined by Accept header is NOT supported', $contentType));
+    }
+
+    /**
+     * Returns the API name, the request handler provides.
+     *
+     * @return string The API name
+     */
+    public function getApi()
+    {
+        return RequestHandler::API;
     }
 
     /**
@@ -202,30 +257,40 @@ class RequestHandler implements RequestHandlerInterface
     {
 
         // iterate over the operations for the actual request method
-        foreach ($this->operationWrappers[strtolower($servletRequest->getMethod())] as $oprationWrapper) {
+        foreach ($this->operationWrappers[strtolower($servletRequest->getMethod())] as $operationWrapper) {
             // query whether or not, the operation's path matches the request path info
-            if ($oprationWrapper->match($servletRequest)) {
+            if ($operationWrapper->match($servletRequest)) {
                 try {
                     // load the operations parameters
-                    $parameters = $this->getRequestParser()->parse($servletRequest, $oprationWrapper);
+                    $parameters = $this->getRequestParser()->parse($servletRequest, $operationWrapper);
 
                     // lookup the bean instance from the application
-                    $instance = $this->getApplication()->search($oprationWrapper->getLookupName());
+                    $instance = $this->getApplication()->search($operationWrapper->getLookupName());
 
                     // inovoke the method
-                    $result = call_user_func_array(array($instance, $oprationWrapper->getMethodName()), $parameters);
+                    $result = call_user_func_array(array($instance, $operationWrapper->getMethodName()), $parameters);
 
                     // append the result and the headers to the response
-                    $servletResponse->addHeader(Protocol::HEADER_CONTENT_TYPE, $this->produces());
-                    $servletResponse->appendBodyStream($this->encode($result));
+                    $servletResponse->addHeader(Protocol::HEADER_CONTENT_TYPE, $this->produces($servletRequest, $operationWrapper));
+
+                    // query whether or not, we've a result
+                    if ($result === null) {
+                        return;
+                    }
+
+                    // if yes, encode it and append it to the body stream
+                    $servletResponse->appendBodyStream($this->serialize($servletRequest, $result));
                 } catch (\Exception $e) {
                     // log the error
                     \error($e);
 
-                    // send a 500 status code and append the error message to the response
-                    $servletResponse->setStatusCode(500);
-                    $servletResponse->addHeader(Protocol::HEADER_CONTENT_TYPE, $this->produces());
-                    $servletResponse->appendBodyStream($this->encode(array('error' => $e->getMessage())));
+                    // load the response wrapper instance
+                    $responseWrapper = $operationWrapper->getResponse($e->getCode() ? $e->getCode() : 500);
+
+                    // send the status code and append the response instance
+                    $servletResponse->setStatusCode($e->getCode() ? $e->getCode() : 500);
+                    $servletResponse->addHeader(Protocol::HEADER_CONTENT_TYPE, $this->produces($servletRequest, $operationWrapper));
+                    $servletResponse->appendBodyStream($this->serialize($servletRequest, $this->getResponseFactory()->createResponse($this, $operationWrapper, $e)));
                 }
             }
         }

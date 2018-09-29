@@ -100,4 +100,21 @@ interface OperationWrapperInterface
      * @return string The request method
      */
     public function getMethod();
+
+    /**
+     * Return's the response for the passed status code.
+     *
+     * @param integer $statusCode The status code to return the response for
+     *
+     * @return \AppserverIo\RestApi\Wrappers\ResponseWrapperInterface The repsonse wrapper instance
+     * @throws \Exception Is thrown, if the response for the passed status code is not available
+     */
+    public function getResponse($statusCode);
+
+    /**
+     * Returns the operation's responses.
+     *
+     * @return \AppserverIo\RestApi\Wrappers\ResponseWrapperInterface[] The array with the responses
+     */
+    public function getResponses();
 }
