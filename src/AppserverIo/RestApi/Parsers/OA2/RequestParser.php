@@ -59,7 +59,7 @@ class RequestParser implements RequestParserInterface
      * Initializes the request handler with the passed application instance.
      *
      * @param \AppserverIo\Psr\Application\ApplicationInterface $application The application instance
-     * @param \AppserverIo\RestApi\SerializerInterface          serializer   The serializer instance
+     * @param \AppserverIo\RestApi\SerializerInterface          $serializer  The serializer instance
      */
     public function __construct(ApplicationInterface $application, SerializerInterface $serializer)
     {

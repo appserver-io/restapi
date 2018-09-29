@@ -20,20 +20,16 @@
 
 namespace AppserverIo\RestApi\Handlers\OA2;
 
-use JMS\Serializer\SerializerBuilder;
 use AppserverIo\Psr\HttpMessage\Protocol;
 use AppserverIo\Psr\Application\ApplicationInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
-use AppserverIo\RestApi\Utils\FormatKeys;
+use AppserverIo\RestApi\SerializerInterface;
 use AppserverIo\RestApi\Parsers\RequestParserInterface;
 use AppserverIo\RestApi\Parsers\ConfigurationParserInterface;
 use AppserverIo\RestApi\Handlers\RequestHandlerInterface;
 use AppserverIo\RestApi\Wrappers\OperationWrapperInterface;
-use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
-use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
 use AppserverIo\RestApi\Responses\ResponseFactoryInterface;
-use AppserverIo\RestApi\SerializerInterface;
 
 /**
  * OpenApi 2.0 compatible request handler.
@@ -185,8 +181,8 @@ class RequestHandler implements RequestHandlerInterface
     /**
      * Returns the content type for the passed servlet request/operation wrapper combination.
      *
-     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface  $servletRequest   The HTTP servlet request instance
-     * @param \AppserverIo\RestApi\Wrappers\OperationWrapperInterface    $operationWrapper The operation wrapper instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface $servletRequest   The HTTP servlet request instance
+     * @param \AppserverIo\RestApi\Wrappers\OperationWrapperInterface   $operationWrapper The operation wrapper instance
      *
      * @return string The content type
      * @throws \Exception Is thrown, if the Content-Type defined by the request's Accept header is NOT supported

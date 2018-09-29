@@ -21,7 +21,6 @@
 namespace AppserverIo\RestApi\Responses;
 
 use AppserverIo\Psr\Application\ApplicationInterface;
-use AppserverIo\Appserver\ServletEngine\RequestHandler;
 use AppserverIo\RestApi\Handlers\RequestHandlerInterface;
 use AppserverIo\RestApi\Wrappers\OperationWrapperInterface;
 

@@ -36,6 +36,8 @@ interface ResponseInterface
      * Sets the passed message.
      *
      * @param string $message The message
+     *
+     * @return void
      */
     public function setMessage($message);
 

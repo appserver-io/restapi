@@ -20,7 +20,6 @@
 
 namespace AppserverIo\RestApi\Responses;
 
-use AppserverIo\Appserver\ServletEngine\RequestHandler;
 use AppserverIo\RestApi\Handlers\RequestHandlerInterface;
 use AppserverIo\RestApi\Wrappers\OperationWrapperInterface;
 
@@ -40,7 +39,7 @@ interface ResponseFactoryInterface
      * Returns the new response instance.
      *
      * @param \AppserverIo\RestApi\Handlers\RequestHandlerInterface   $requestHandler   The actual request handler instance
-     * @param \AppserverIo\RestsApi\Wrappers\OperationWrapperInterface $operationWrapper The operation wrapper to create the response for
+     * @param \AppserverIo\RestApi\Wrappers\OperationWrapperInterface $operationWrapper The operation wrapper to create the response for
      * @param \Exception                                              $e                The exception to initialize the resonse with
      *
      * @return \AppserverIo\RestApi\Responses\ResponseInterface The response instance
