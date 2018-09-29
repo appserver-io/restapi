@@ -20,13 +20,14 @@
 
 namespace AppserverIo\RestApi\Parsers\OA2;
 
+use AppserverIo\Psr\Di\ObjectManagerInterface;
+use AppserverIo\Psr\Application\ApplicationInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 use AppserverIo\RestApi\Parsers\RequestParserInterface;
 use AppserverIo\RestApi\Wrappers\OperationWrapperInterface;
 use AppserverIo\RestApi\Wrappers\ParameterWrapperInterface;
-use JMS\Serializer\SerializerBuilder;
-use AppserverIo\Psr\Di\ObjectManagerInterface;
-use AppserverIo\Psr\Application\ApplicationInterface;
+use AppserverIo\Psr\EnterpriseBeans\Description\BeanDescriptorInterface;
+use AppserverIo\RestApi\SerializerInterface;
 
 /**
  * OpenApi 2.0 compatible request parser.
@@ -48,13 +49,22 @@ class RequestParser implements RequestParserInterface
     protected $application;
 
     /**
+     * The serializer instance.
+     *
+     * @var \AppserverIo\RestApi\SerializerInterface
+     */
+    protected $serializer;
+
+    /**
      * Initializes the request handler with the passed application instance.
      *
      * @param \AppserverIo\Psr\Application\ApplicationInterface $application The application instance
+     * @param \AppserverIo\RestApi\SerializerInterface          $serializer  The serializer instance
      */
-    public function __construct(ApplicationInterface $application)
+    public function __construct(ApplicationInterface $application, SerializerInterface $serializer)
     {
         $this->application = $application;
+        $this->serializer = $serializer;
     }
 
     /**
@@ -65,6 +75,30 @@ class RequestParser implements RequestParserInterface
     protected function getApplication()
     {
         return $this->application;
+    }
+
+    /**
+     * Returns the serializer instance.
+     *
+     * @return \AppserverIo\RestApi\SerializerInterface The serializer instance
+     */
+    protected function getSerializer()
+    {
+        return $this->serializer;
+    }
+
+    /**
+     * Unserializes the body content of the passed request and converts the data into an
+     * object specified by the passed bean descriptor instance.
+     *
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface            $servletRequest The HTTP servlet request instance
+     * @param \AppserverIo\Psr\EnterpriseBeans\Description\BeanDescriptorInterface $descriptor     The bean descriptor with the class definition
+     *
+     * @return mixed The unserialized body content
+     */
+    protected function unserialize(HttpServletRequestInterface $servletRequest, BeanDescriptorInterface $descriptor)
+    {
+        return $this->getSerializer()->unserialize($servletRequest->getBodyContent(), $descriptor->getClassName(), $this->getSerializer()->mapHeader($servletRequest));
     }
 
     /**
@@ -88,8 +122,8 @@ class RequestParser implements RequestParserInterface
         // load the object descriptor
         $objectDescriptor = $objectManager->getObjectDescriptor($lookupName);
 
-        // unserialize the body content into an object and return it
-        return SerializerBuilder::create()->build()->deserialize($servletRequest->getBodyContent(), $objectDescriptor->getClassName(), 'json');
+        // unserialize the body content and return the bean instance
+        return $this->unserialize($servletRequest, $objectDescriptor);
     }
 
     /**

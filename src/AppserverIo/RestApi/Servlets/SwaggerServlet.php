@@ -21,6 +21,7 @@
 namespace AppserverIo\RestApi\Servlets;
 
 use Symfony\Component\Finder\Finder;
+use AppserverIo\RestApi\Utils\InitParameterKeys;
 use AppserverIo\Psr\HttpMessage\Protocol;
 use AppserverIo\Psr\Servlet\Http\HttpServlet;
 use AppserverIo\Psr\Servlet\ServletConfigInterface;
@@ -63,8 +64,13 @@ class SwaggerServlet extends HttpServlet
 
         // initialize the finder for a fine granular
         $finder = new Finder();
-        $finder->in(sprintf('%s/*/classes', $servletConfig->getWebappPath()));
         $finder->files('*.php');
+        $finder->in(
+            array(
+                sprintf('%s/Responses/%s', dirname(__DIR__), $servletConfig->getInitParameter(InitParameterKeys::API)),
+                sprintf('%s/*/classes', $servletConfig->getWebappPath())
+            )
+        );
 
         // generate the content of the Swagger JSON file
         $this->swagger = \Swagger\scan($finder);
