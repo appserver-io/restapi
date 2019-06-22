@@ -32,7 +32,7 @@ use AppserverIo\RestApi\Wrappers\HeaderWrapperInterface;
  * @link      https://github.com/appserver-io/restapi
  * @link      http://www.appserver.io
  */
-class ResponseWrapper implements HeaderWrapperInterface
+class HeaderWrapper implements HeaderWrapperInterface
 {
 
     /**

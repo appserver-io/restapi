@@ -280,9 +280,6 @@ class RequestHandler implements RequestHandlerInterface
                     // log the error
                     \error($e);
 
-                    // load the response wrapper instance
-                    $responseWrapper = $operationWrapper->getResponse($e->getCode() ? $e->getCode() : 500);
-
                     // send the status code and append the response instance
                     $servletResponse->setStatusCode($e->getCode() ? $e->getCode() : 500);
                     $servletResponse->addHeader(Protocol::HEADER_CONTENT_TYPE, $this->produces($servletRequest, $operationWrapper));
