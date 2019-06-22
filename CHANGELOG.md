@@ -1,3 +1,13 @@
+# Version 1.1.0
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Refactoring for OAS 2
+
 # Version 1.0.2
 
 ## Bugfixes
