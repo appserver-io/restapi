@@ -44,7 +44,8 @@ class Serializer implements SerializerInterface
      * @var array
      */
     protected $headerToTypeMappings = array(
-        'application/json' => 'json'
+        'application/json' => 'json',
+        'application/xml'  => 'xml'
     );
 
     /**
