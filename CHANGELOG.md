@@ -2,11 +2,11 @@
 
 ## Bugfixes
 
-* Fixed invalid class name in HeaderWrappr class
+* None
 
 ## Features
 
-* None
+* Ignore Doctrine annotation exceptions and continue parsing for Zircote Swagger annoations
 
 # Version 1.1.1
 
