@@ -119,7 +119,7 @@ class AnnotationParser implements ConfigurationParserInterface
                         if ($operation = $annotationReader->getMethodAnnotation($reflectionMethod, Delete::class)) {
                             $requestHandler->addOperation(new OperationWrapper($operation, $objectDescriptor, $reflectionMethod));
                         }
-                    } catch(AnnotationException $ae) {
+                    } catch (AnnotationException $ae) {
                         \warning($ae->getMessage());
                     }
                 }
