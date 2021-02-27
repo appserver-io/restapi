@@ -1,3 +1,13 @@
+# Version 1.1.2
+
+## Bugfixes
+
+* Fixed invalid class name in HeaderWrappr class
+
+## Features
+
+* None
+
 # Version 1.1.1
 
 ## Bugfixes
