@@ -25,6 +25,7 @@ use Swagger\Annotations\Post;
 use Swagger\Annotations\Patch;
 use Swagger\Annotations\Delete;
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\AnnotationException;
 use AppserverIo\RestApi\Wrappers\OA2\OperationWrapper;
 use AppserverIo\RestApi\Handlers\RequestHandlerInterface;
 use AppserverIo\RestApi\Parsers\ConfigurationParserInterface;
@@ -98,24 +99,28 @@ class AnnotationParser implements ConfigurationParserInterface
             if ($objectDescriptor instanceof NameAwareDescriptorInterface) {
                 // if yes, iterate over the methods
                 foreach ($reflectionClass->getMethods() as $reflectionMethod) {
-                    // adn add the GET operation, if the method has the apropriate annotation
-                    if ($operation = $annotationReader->getMethodAnnotation($reflectionMethod, Get::class)) {
-                        $requestHandler->addOperation(new OperationWrapper($operation, $objectDescriptor, $reflectionMethod));
-                    }
+                    try {
+                        // adn add the GET operation, if the method has the apropriate annotation
+                        if ($operation = $annotationReader->getMethodAnnotation($reflectionMethod, Get::class)) {
+                            $requestHandler->addOperation(new OperationWrapper($operation, $objectDescriptor, $reflectionMethod));
+                        }
 
-                    // adn add the POST operation, if the method has the apropriate annotation
-                    if ($operation = $annotationReader->getMethodAnnotation($reflectionMethod, Post::class)) {
-                        $requestHandler->addOperation(new OperationWrapper($operation, $objectDescriptor, $reflectionMethod));
-                    }
+                        // adn add the POST operation, if the method has the apropriate annotation
+                        if ($operation = $annotationReader->getMethodAnnotation($reflectionMethod, Post::class)) {
+                            $requestHandler->addOperation(new OperationWrapper($operation, $objectDescriptor, $reflectionMethod));
+                        }
 
-                    // adn add the PATCH operation, if the method has the apropriate annotation
-                    if ($operation = $annotationReader->getMethodAnnotation($reflectionMethod, Patch::class)) {
-                        $requestHandler->addOperation(new OperationWrapper($operation, $objectDescriptor, $reflectionMethod));
-                    }
+                        // adn add the PATCH operation, if the method has the apropriate annotation
+                        if ($operation = $annotationReader->getMethodAnnotation($reflectionMethod, Patch::class)) {
+                            $requestHandler->addOperation(new OperationWrapper($operation, $objectDescriptor, $reflectionMethod));
+                        }
 
-                    // adn add the DELETE operation, if the method has the apropriate annotation
-                    if ($operation = $annotationReader->getMethodAnnotation($reflectionMethod, Delete::class)) {
-                        $requestHandler->addOperation(new OperationWrapper($operation, $objectDescriptor, $reflectionMethod));
+                        // adn add the DELETE operation, if the method has the apropriate annotation
+                        if ($operation = $annotationReader->getMethodAnnotation($reflectionMethod, Delete::class)) {
+                            $requestHandler->addOperation(new OperationWrapper($operation, $objectDescriptor, $reflectionMethod));
+                        }
+                    } catch(AnnotationException $ae) {
+                        \warning($ae->getMessage());
                     }
                 }
             }
