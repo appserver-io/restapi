@@ -1,3 +1,13 @@
+# Version 1.2.0
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Add basic support for parameters with collection format `multi`
+
 # Version 1.1.2
 
 ## Bugfixes

@@ -142,23 +142,26 @@ class RequestParser implements RequestParserInterface
         if ($parameter->hasCollectionFormat('csv')) {
             // load the value from the request
             if ($param = $servletRequest->getParameter($parameter->getName())) {
-                // initialize the array for the values
-                $parameters = array();
-
                 // extract the values by parsing them as CSV string
-                foreach (str_getcsv(urldecode($param)) as $value) {
-                    list ($key, $val) = explode('=', urldecode($value));
-                    $parameters[$key] = $val;
-                }
-
-                // return the parameters
-                return $parameters;
+                return str_getcsv($param);
             }
 
             // return an empty array
             return array();
         } elseif ($parameter->hasCollectionFormat('multi')) {
-            throw new \Exception('Collection format "multi" is not yet supported');
+            // load the value from the request
+            if ($param = $servletRequest->getParam($parameter->getName())) {
+                // initialize the array for the values
+                $parameters = array();
+
+                // extract the values by parsing them as CSV string
+                foreach ($param as $key => $value) {
+                    $parameters[$key] = filter_var($value, FILTER_SANITIZE_STRING);
+                }
+
+                // return the parameters
+                return $parameters;
+            }
         } else {
             throw new \Exception(sprintf('Unknown collection format "%s" is not supported yet', $parameter->getCollectionFormat()));
         }
