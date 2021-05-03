@@ -49,7 +49,7 @@ class ObjectConstructor implements ObjectConstructorInterface
     /**
      * Initializes the object constructor instance with the application
      *
-     * @param \AppserverIo\Psr\Application\ApplicationInterface $application
+     * @param \AppserverIo\Psr\Application\ApplicationInterface $application The application instance
      */
     public function __construct(ApplicationInterface $application)
     {
@@ -62,13 +62,13 @@ class ObjectConstructor implements ObjectConstructorInterface
      * Implementations could for example create a new object calling "new", use
      * "unserialize" techniques, reflection, or other means.
      *
-     * @param VisitorInterface $visitor
-     * @param ClassMetadata $metadata
-     * @param mixed $data
-     * @param array $type ["name" => string, "params" => array]
-     * @param DeserializationContext $context
+     * @param \JMS\Serializer\VisitorInterface       $visitor  The visitor instance
+     * @param \JMS\Serializer\Metadata\ClassMetadata $metadata The class metadata
+     * @param mixed                                  $data     The data passed to the constructor
+     * @param array                                  $type     The array with type information ["name" => string, "params" => array]
+     * @param \JMS\Serializer\DeserializationContext $context  The deserialization context
      *
-     * @return object
+     * @return object The instance
      */
     public function construct(VisitorInterface $visitor, ClassMetadata $metadata, $data, array $type, DeserializationContext $context)
     {
