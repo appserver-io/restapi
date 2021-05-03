@@ -21,9 +21,11 @@
 namespace AppserverIo\RestApi;
 
 use JMS\Serializer\SerializerBuilder;
+use JMS\Serializer\SerializerInterface as JmsSerializerInterface;
 use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
 use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
 use AppserverIo\Psr\HttpMessage\Protocol;
+use AppserverIo\Psr\Application\ApplicationInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 
 /**
@@ -35,7 +37,7 @@ use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
  * @link      https://github.com/appserver-io/restapi
  * @link      http://www.appserver.io
  */
-class Serializer implements SerializerInterface
+class Serializer implements \AppserverIo\RestApi\SerializerInterface
 {
 
     /**
@@ -49,15 +51,30 @@ class Serializer implements SerializerInterface
     );
 
     /**
+     * The application instance.
+     *
+     * @var \AppserverIo\Psr\Application\ApplicationInterface
+     */
+    protected $application;
+
+    /**
+     * Initializes the instance with the passed serializer implementation.
+     *
+     * @param \AppserverIo\Psr\Application\ApplicationInterface $application The application instance
+     */
+    public function __construct(ApplicationInterface $application)
+    {
+        $this->application = $application;
+    }
+
+    /**
      * Returns the JMS serializer instance.
      *
      * @return \JMS\Serializer\Serializer The serializer instance
      */
     protected function getInstance()
     {
-        return SerializerBuilder::create()
-            ->setPropertyNamingStrategy(new SerializedNameAnnotationStrategy(new IdenticalPropertyNamingStrategy()))
-            ->build();
+        return $this->application->search('JmsSerializer');
     }
 
     /**

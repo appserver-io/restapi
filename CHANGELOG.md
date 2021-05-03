@@ -1,3 +1,13 @@
+# Version 2.0.0
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Add container based object constructor
+
 # Version 1.2.0
 
 ## Bugfixes
